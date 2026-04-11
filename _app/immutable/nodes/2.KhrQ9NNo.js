@@ -1,0 +1,1 @@
+import{f as e,m as t}from"../chunks/Cq743CJF.js";import"../chunks/DEDqjojZ.js";var n=t(`<h1>Welcome to my profile page</h1>`);function r(t){console.log(`Hello World`),e(t,n())}export{r as component};
