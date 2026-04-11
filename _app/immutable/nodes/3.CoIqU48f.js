@@ -1,0 +1,1 @@
+import{M as e,T as t,b as n,f as r,j as i,m as a,o,w as s}from"../chunks/CaGcReyF.js";import{s as c}from"../chunks/os9v9I9O.js";import"../chunks/DXLwiZ0H.js";var l=a(`<h1 class="text-3xl font-bold">THIS IS THER TEST PAGE</h1> <a>HOME</a>`,1);function u(a,u){e(u,!0);var d=l(),f=t(s(d),2);n(e=>o(f,`href`,e),[()=>c(`/`)]),r(a,d),i()}export{u as component};
