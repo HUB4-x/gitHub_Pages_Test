@@ -6,4 +6,14 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-{@render children()}
+
+
+<div class="w-screen h-screen bg-base overflow-hidden">
+	<nav class="border-b-3 border-white">
+		<button class="btn btn-info">Home</button>
+	</nav>
+	{@render children()}
+</div>
+
+
+
