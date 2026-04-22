@@ -1,18 +1,32 @@
 <script lang="ts">
+	/**
+	 * GitHub pages tutorial: https://github.com/shinokada/sveltekit-githubpages/tree/main
+	*/
 	import './layout.css';
 	// import favicon from '$lib/assets/favicon.svg';
 	import favicon from '$lib/assets/favicon.png';
 	import { resolve } from '$app/paths';
-	import { changeTheme } from '$lib/stores/theme';
-
+	import { changeTheme, get_currently_active_theme, is_light_theme_active } from '$lib/stores/theme';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+
+	let isLightTheme: boolean = $state(true)
+
+
+	onMount(()=>{
+		get_currently_active_theme()
+		isLightTheme = $is_light_theme_active
+	})
+
+
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 
-<div class="w-screen h-screen bg-base overflow-hidden flex flex-col">
+<!-- <div class="w-screen h-screen bg-base overflow-hidden flex flex-col"> -->
+<div class="w-screen h-screen overflow-hidden flex flex-col bg-gradient-to-br from-base to-secondary/40">
 	<nav class="flex w-full h-fit px-2 pt-2">
 	<div class="size-full flex mx-10">
 		<div class="w-full h-fit flex place-content-center gap-x-4">
@@ -26,7 +40,7 @@
 	</div>
 	<label class="swap swap-rotate">
 		<!-- this hidden checkbox controls the state -->
-		<input type="checkbox" class="theme-controller hidden" onclick={changeTheme}/>
+		<input type="checkbox" class="theme-controller hidden" bind:checked={isLightTheme} onclick={changeTheme}/>
 
 		<!-- sun icon -->
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="swap-on h-10 w-10 fill-current">
@@ -44,7 +58,7 @@
 <div class="divider m-0 mb-5"></div>
 
 	<div class="flex size-full">
-	<div class="mx-auto">
+	<div class="w-3/4 mx-auto text-lg font-medium">
 		{@render children()}
 	</div>
 	</div>

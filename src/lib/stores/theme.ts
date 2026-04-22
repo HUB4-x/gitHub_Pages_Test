@@ -33,15 +33,22 @@ function changeThemeVars(theme_string: string, isLightTheme: boolean, localstora
 
 
 export function get_currently_active_theme(): string{
-    const current_theme: string = localStorage.getItem(THEME_LOCAL_STORAGE_KEY)?? LIGHT_x_DARK_THEME[0]
+    let current_theme: string | null = localStorage.getItem(THEME_LOCAL_STORAGE_KEY)
+    if(!current_theme){
+        //Default value
+        current_theme = LIGHT_x_DARK_THEME[0]
+    }
+    if(current_theme === LIGHT_x_DARK_THEME[1]){
+        changeThemeVars(current_theme, false)
+    } else {
+        changeThemeVars(LIGHT_x_DARK_THEME[0], true)
+    }
     return current_theme
 }
 
 
 export function check_light_theme_active(): boolean{
     const tmp_theme: string = get_currently_active_theme()
-    if(tmp_theme === LIGHT_x_DARK_THEME[0]){
-        return true
-    }
+    currently_active_theme.set(tmp_theme)
     return false
 }
