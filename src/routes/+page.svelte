@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { runTypewriterIteration } from '$lib/utils/typewriter_effect';
-	import { control_structure, data } from './landing_page_data';
-	import { decode_base64 } from './tools/tool_functions';
+	import { data } from './landing_page_data';
 
-	let text: string = $state('');
+	let text: string = $state(data.welcome_text);
 
 	const typingSpeed: number = $state(60);
 	const holdTime: number = $state(7000);
@@ -27,13 +26,6 @@
 	}
 
 	onMount(() => {
-		// text = atob(name_b64) + ',\n' + text
-		let tmp_string: string = data.welcome_text
-		const rounds: number = control_structure.iteration_of_nested_b64
-		for(let i = 0; i < rounds; i++){
-			tmp_string = decode_base64(tmp_string)
-		}
-		text = tmp_string
 		start_typewrite_animation();
 
 		return () => {
@@ -44,12 +36,12 @@
 </script>
 
 <svelte:head>
-	<title></title>
+	<title>{data.tab_title}</title>
 </svelte:head>
 
 <div class="size-full flex flex-col">
 	<!-- <h1 class="text-3xl font-extrabold">Hi, my name is XYZ AAAA</h1> -->
-	 <div class="mockup-code w-fit mx-auto">
+	<div class="mockup-code w-fit mx-auto select-none">
 		<pre data-prefix=">" class="text-5xl invisible"><code class="">{text}</code></pre>
 		<pre data-prefix=">" class="text-5xl"><code class="">{displayedText}</code></pre>
 	</div>

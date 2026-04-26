@@ -15,3 +15,12 @@ export function decode_base64(base64: string): string {
       .join("")
   );
 }
+
+
+export function run_function_n_times(n: number, func: (input: string)=>string, input: string): string {
+    let tmp_string: string = input
+    for(let i = 0; i < n; i++){
+        tmp_string = func(tmp_string)
+    }
+    return tmp_string
+}
