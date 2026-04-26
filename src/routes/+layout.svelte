@@ -26,12 +26,12 @@
 
 
 <!-- <div class="w-screen h-screen bg-base overflow-hidden flex flex-col"> -->
-<div class="w-screen h-screen overflow-hidden flex flex-col bg-gradient-to-br from-base to-secondary/40">
+<div class="w-screen h-screen overflow-hidden flex flex-col bg-gradient-to-br from-base to-secondary/50">
 	<nav class="flex w-full h-fit px-2 pt-2">
 	<div class="size-full flex mx-10">
 		<div class="w-full h-fit flex place-content-center gap-x-4">
 			<!-- <a href="{resolve('/')}" class="link-hover text-xl font-semibold transition-transform duration-200 hover:scale-105">Home</a> -->
-			<a href="{resolve('/')}" class="link link-secondary text-lg font-semibold transition-transform duration-200 hover:scale-105">About</a>
+			<a href="{resolve('/')}" class="link link-secondary text-lg font-semibold transition-transform duration-200 hover:scale-105">About Me</a>
 			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">CV</a>
 			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">Blog</a>
 			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">Projects</a>
@@ -58,9 +58,9 @@
 <div class="divider m-0 mb-5"></div>
 
 	<div class="flex size-full">
-	<div class="w-3/4 mx-auto text-lg font-medium">
-		{@render children()}
-	</div>
+		<div class="w-3/4 mx-auto text-lg font-medium pb-10">
+			{@render children()}
+		</div>
 	</div>
 </div>
 
