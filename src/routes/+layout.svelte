@@ -19,6 +19,10 @@
 		isLightTheme = $is_light_theme_active
 	})
 
+	$effect(()=>{
+		isLightTheme = $is_light_theme_active
+	})
+
 
 </script>
 
@@ -31,11 +35,11 @@
 	<div class="size-full flex mx-10">
 		<div class="w-full h-fit flex place-content-center gap-x-4">
 			<!-- <a href="{resolve('/')}" class="link-hover text-xl font-semibold transition-transform duration-200 hover:scale-105">Home</a> -->
-			<a href="{resolve('/')}" class="link link-secondary text-lg font-semibold transition-transform duration-200 hover:scale-105">About Me</a>
-			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">CV</a>
-			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">Blog</a>
-			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">Projects</a>
-			<a href="{resolve('/')}" class="link-hover text-lg font-semibold transition-transform duration-200 hover:scale-105">Repositories</a>
+			<a href="{resolve('/')}" class="link {isLightTheme? 'link-info' : 'link-secondary'} text-lg font-bold transition-transform duration-200 hover:scale-105">About Me</a>
+			<a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">CV</a>
+			<a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Blog</a>
+			<a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Projects</a>
+			<a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Repositories</a>
 		</div>
 	</div>
 	<label class="swap swap-rotate">
@@ -58,7 +62,7 @@
 <div class="divider m-0 mb-5"></div>
 
 	<div class="flex size-full">
-		<div class="w-3/4 mx-auto text-lg font-medium pb-10">
+		<div class="w-5/8 mx-auto text-lg font-medium pb-10">
 			{@render children()}
 		</div>
 	</div>
