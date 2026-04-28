@@ -1,5 +1,10 @@
+<svelte:head>
+    <title>Tools</title>
+</svelte:head>
+
+
 <script lang="ts">
-    import { encode_base64, decode_base64 } from "./tool_functions";
+    import { encode_base64, decode_base64 } from "../../lib/utils/tool_functions";
 
     let inputText: string = $state('')
     let outputText: string = $state('')
