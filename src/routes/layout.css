@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
     /* themes: light --default, dark --prefersdark; */
-    themes: nord --default, business;
+    themes: corporate --default, business;
 }
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';

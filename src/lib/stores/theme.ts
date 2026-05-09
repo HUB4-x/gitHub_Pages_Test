@@ -4,7 +4,7 @@
  */
 import { writable } from "svelte/store"
 
-const LIGHT_x_DARK_THEME: [string, string] = ['nord', 'business'] //maybe make this as an export var
+const LIGHT_x_DARK_THEME: [string, string] = ['corporate', 'business'] //maybe make this as an export var
 
 const THEME_LOCAL_STORAGE_KEY: string = 'theme-portfolio-page'
 
