@@ -4,7 +4,7 @@
 </script>
 
 <dialog id="login_modal" class="modal">
-  <div class="modal-box w-5/10 max-w-5xl bg-neutral dark:bg-green-600">
+  <div class="modal-box w-5/10 max-w-5xl h-fit bg-neutral dark:bg-neutral-content dark:text-neutral">
     <form method="dialog">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
     </form>

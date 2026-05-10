@@ -1,11 +1,94 @@
 @import 'tailwindcss';
 
 /* This adds the dark: class operator and connects it with the business theme */
-@custom-variant dark (&:where([data-theme=business], [data-theme=business] *)); 
+@custom-variant dark (&:where([data-theme=portfolio_dark], [data-theme=portfolio_dark] *)); 
+
+
+
+
+
+@plugin "daisyui/theme" {
+  name: "portfolio_light";
+  default: false;
+  prefersdark: false;
+  color-scheme: "dark";
+  --color-base-100: oklch(83.2% 0 0);
+  --color-base-200: oklch(69% 0 0);
+  --color-base-300: oklch(56.4% 0 0);
+  --color-base-content: oklch(0% 0 0);
+  --color-primary: oklch(41.703% 0.099 251.473);
+  --color-primary-content: oklch(96% 0 0);
+  --color-secondary: oklch(60% 0.131 251.473);
+  --color-secondary-content: oklch(97% 0 236.620);
+  --color-accent: oklch(63% 0.109 238.200);
+  --color-accent-content: oklch(98% 0 200.873);
+  --color-neutral: oklch(100% 0 0);
+  --color-neutral-content: oklch(11% 0 0);
+  --color-info: oklch(70.9% 0.157 230.800);
+  --color-info-content: oklch(28% 0.091 267.935);
+  --color-success: oklch(78.6% 0.122 156.596);
+  --color-success-content: oklch(26% 0.065 152.934);
+  --color-warning: oklch(78% 0.146 78.600);
+  --color-warning-content: oklch(27% 0.077 45.635);
+  --color-error: oklch(68.2% 0.157 30.400);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 2rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+
+
+
+@plugin "daisyui/theme" {
+  name: "portfolio_dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: oklch(48.7% 0 0);
+  --color-base-200: oklch(36.2% 0 0);
+  --color-base-300: oklch(13% 0 0);
+  --color-base-content: oklch(92% 0 0);
+  --color-primary: oklch(41.703% 0.099 251.473);
+  --color-primary-content: oklch(88.34% 0.019 251.473);
+  --color-secondary: oklch(60% 0.131 251.473);
+  --color-secondary-content: oklch(12.818% 0.005 229.389);
+  --color-accent: oklch(63% 0.109 238.200);
+  --color-accent-content: oklch(12.818% 0.005 229.389);
+  --color-neutral: oklch(0% 0.013 253.041);
+  --color-neutral-content: oklch(100% 0.002 0);
+  --color-info: oklch(70.9% 0.157 230.800);
+  --color-info-content: oklch(12.523% 0.028 240.033);
+  --color-success: oklch(67.4% 0.094 156.596);
+  --color-success-content: oklch(14.045% 0.018 156.596);
+  --color-warning: oklch(77.482% 0.115 81.519);
+  --color-warning-content: oklch(15.496% 0.023 81.519);
+  --color-error: oklch(51.61% 0.146 29.674);
+  --color-error-content: oklch(90.322% 0.029 29.674);
+  --radius-selector: 2rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+
 
 @plugin "daisyui" {
-    /* themes: light --default, dark --prefersdark; */
-    themes: corporate --default, business;
+    themes: portfolio_light --default, portfolio_dark;
 }
+
+
+/* @plugin "daisyui" {
+    themes: corporate --default, business;
+} */
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
