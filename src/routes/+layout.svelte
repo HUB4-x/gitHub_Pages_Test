@@ -16,6 +16,8 @@
 	import { available_users, init_userSession, load_storage_userlist_into_memory } from '$lib/stores/user_session';
 	import { getLocalStorage } from '$lib/utils/localstorage_utils';
 	import { USER_LOCALSTORAGE_KEY } from '$lib/utils/AC_Controls';
+	import { open_modal } from '$lib/utils/ui_utils';
+	import LoginComponent from '$lib/components/login_component.svelte';
 
 	let { children } = $props();
 
@@ -23,6 +25,10 @@
 
 
 	onMount(()=>{
+		// TESTING
+		openCredsPopUp()
+		// Testing ende
+
 		get_currently_active_theme()
 		isLightTheme = $is_light_theme_active
 		if(!getLocalStorage(USER_LOCALSTORAGE_KEY)){
@@ -34,6 +40,10 @@
 	$effect(()=>{
 		isLightTheme = $is_light_theme_active
 	})
+
+	function openCredsPopUp(){
+		open_modal('login_modal')
+	}
 
 
 </script>
@@ -84,7 +94,7 @@
 					<li><a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Blog</a></li>
 					<li><a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Projects</a></li>
 					<li><a href="{resolve('/')}" class="link-hover text-lg font-bold transition-transform duration-200 hover:scale-105">Repositories</a></li>
-					<li><button class="btn btn-sm bg-info/20 border-0 hover:bg-info">Enter Credentials</button></li>
+					<li><button class="btn btn-sm bg-info/20 border-0 hover:bg-info" onclick={openCredsPopUp}>Enter Credentials</button></li>
 				</ul>
 			</div>
 			<!-- <a class="btn btn-ghost text-xl">daisyUI</a> -->
@@ -111,7 +121,7 @@
 			</ul>
 		</div>
 		<div class="navbar-end gap-x-3">
-			<button class="btn bg-info/50 border-0 hover:bg-info hidden lg:inline">Enter Credentials</button>
+			<button class="btn bg-info/50 border-0 hover:bg-info hidden lg:inline" onclick={openCredsPopUp}>Enter Credentials</button>
 			<label class="swap swap-rotate">
 				<input type="checkbox" class="theme-controller hidden" bind:checked={isLightTheme} onclick={changeTheme}/>
 	
@@ -137,4 +147,5 @@
 </div>
 
 
+<LoginComponent></LoginComponent>
 
