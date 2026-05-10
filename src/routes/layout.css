@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+
+/* This adds the dark: class operator and connects it with the business theme */
+@custom-variant dark (&:where([data-theme=business], [data-theme=business] *)); 
+
 @plugin "daisyui" {
     /* themes: light --default, dark --prefersdark; */
     themes: corporate --default, business;
