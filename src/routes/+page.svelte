@@ -15,7 +15,7 @@
 	let text: string = $state('');
 	let displaytext: string = $state('');
 
-	const typingSpeed: number = $state(60);
+	const typingSpeed: number = $state(35);
 	const holdTime: number = $state(7000);
 	const restartDelay: number = $state(200);
 

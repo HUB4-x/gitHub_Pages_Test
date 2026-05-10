@@ -66,7 +66,6 @@ export function getHighestPrivUser(userlist: Access_Control_Role_Type[]): Access
         userlist.forEach((user: Access_Control_Role_Type)=>{
             if(user.id < highestPrivUser.id) {
                 highestPrivUser = user
-                console.log(highestPrivUser)
                 return
             }
         })
