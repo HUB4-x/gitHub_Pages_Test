@@ -70,7 +70,7 @@
 	</div>
 	
 
-	<div class="flex flex-col mt-5 h-full w-full">
+	<div class="flex flex-col min-w-max mx-auto mt-5 h-full w-full">
 		<a href={resolve('/enc_test')}>TEST PAGE</a>
 		<a href={resolve('/tools/enc_content')}>Enc Content</a>
 		<a href={resolve('/tools/dec_content')}>Dec Content</a>

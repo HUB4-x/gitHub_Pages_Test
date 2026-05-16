@@ -2,6 +2,7 @@
  * 
  */
 
+import { get_only_stored_users } from "$lib/stores/user_session";
 import { setLocalStorage } from "./localstorage_utils";
 
 export const STORED_CREDENTIALS_LOCALSTORAGE_KEY: string = ''
@@ -225,6 +226,7 @@ export async function deriveAESKeyFromPassword(password: string, salt: BufferSou
 // ################################################
 
 export const USER_LOCALSTORAGE_KEY: string = 'Stored_User_Creds'
+export const isFreeUser_Storage_Key: string = 'NOLOGIN_FU_ACK'
 
 export type Access_Control_Role_Type = {
     id: number; //Unique identifier
@@ -321,6 +323,24 @@ export function updateUserById<T extends { id: number | string }>(user_id: T['id
 	}
 }
 
+export function updateUserByUsername<T extends { username: number | string }>(username: T['username'], updates: Partial<T>): T[] | null {
+	const raw = localStorage.getItem(USER_LOCALSTORAGE_KEY);
+	if (!raw) return null;
+
+	try {
+		const users = JSON.parse(raw) as T[];
+
+		const updatedUsers = users.map((user) =>
+			user.username === username ? { ...user, ...updates } : user
+		);
+
+		localStorage.setItem(USER_LOCALSTORAGE_KEY, JSON.stringify(updatedUsers));
+		return updatedUsers;
+	} catch {
+		return null;
+	}
+}
+
 
 export function remove_user_from_stored_userlist(id: number){
 	const user_default_values: Access_Control_Role_Type | undefined = default_user_list.find((u: Access_Control_Role_Type)=>{
@@ -328,6 +348,46 @@ export function remove_user_from_stored_userlist(id: number){
 	});
 	if(user_default_values){
 		updateUserById(id, user_default_values)
+	}
+}
+
+
+export function get_user_from_default_userlist(id?: number, username?: string): Access_Control_Role_Type | undefined{
+	const userlist: Access_Control_Role_Type[] = default_user_list
+	const user: Access_Control_Role_Type | undefined = userlist.find((user)=>{
+		if(id){
+			if(user.id === id){
+				return user
+			}
+		} else if (username) {
+			if(user.username === username) { 
+				return user
+			}
+		} 
+	})
+	if(user){
+		return user
+	} else {
+		return undefined
+	}
+}
+export function get_user_from_stored_userlist(id?: number, username?: string): Access_Control_Role_Type | undefined{
+	const userlist: Access_Control_Role_Type[] = get_only_stored_users()
+	const user: Access_Control_Role_Type | undefined = userlist.find((user)=>{
+		if(id){
+			if(user.id === id){
+				return user
+			}
+		} else if (username) {
+			if(user.username === username) { 
+				return user
+			}
+		} 
+	})
+	if(user){
+		return user
+	} else {
+		return undefined
 	}
 }
 

@@ -12,12 +12,13 @@
 
 	import { resolve } from '$app/paths';
 	import { changeTheme, get_currently_active_theme, is_light_theme_active } from '$lib/stores/theme';
-	import { onMount } from 'svelte';
-	import { available_users, init_userSession, load_storage_userlist_into_memory } from '$lib/stores/user_session';
+	import { onMount, tick } from 'svelte';
+	import { available_users, get_only_stored_users, init_userSession, load_storage_userlist_into_memory } from '$lib/stores/user_session';
 	import { getLocalStorage } from '$lib/utils/localstorage_utils';
-	import { USER_LOCALSTORAGE_KEY } from '$lib/utils/AC_Controls';
+	import { isFreeUser_Storage_Key, USER_LOCALSTORAGE_KEY, type Access_Control_Role_Type } from '$lib/utils/AC_Controls';
 	import { open_modal } from '$lib/utils/ui_utils';
 	import LoginComponent from '$lib/components/login_component.svelte';
+	import { afterNavigate } from '$app/navigation';
 
 	let { children } = $props();
 
@@ -35,15 +36,26 @@
 			init_userSession()
 		} 
 		load_storage_userlist_into_memory()
+
+
 	})
+
 
 	$effect(()=>{
 		isLightTheme = $is_light_theme_active
+		// openCredsPopUp()
 	})
 
-	function openCredsPopUp(){
+	async function openCredsPopUp(){
+		await tick()
 		open_modal('login_modal')
 	}
+
+	afterNavigate(async ()=>{
+		if(get_only_stored_users().length <= 0 || !(localStorage.getItem(isFreeUser_Storage_Key)?? true)){
+			openCredsPopUp()
+		}
+	})
 
 
 </script>
@@ -110,7 +122,7 @@
 	<div class="divider m-0"></div>
 
 	<div class="flex min-h-0 min-w-max grow w-full overflow-y-auto overflow-x-hidden">
-		<div class="w-full h-full p-2 md:p-0 md:w-6/8 mx-auto text-lg font-medium overflow-x-hidden">
+		<div class="w-full h-full p-2 md:p-0 md:w-5/8 mx-auto text-lg font-medium overflow-x-hidden">
 			{@render children()}
 		</div>
 	</div>
