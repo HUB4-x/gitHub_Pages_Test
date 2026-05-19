@@ -15,9 +15,6 @@
     onMount(()=>{
         user_accepted_being_FreeUser = JSON.parse(getLocalStorage(isFreeUser_Storage_Key)?? 'true')
         logged_in_users = get_only_stored_users()
-
-        console.log(user_accepted_being_FreeUser)
-        console.log(get_only_stored_users().length <= 0)
     })
 
 

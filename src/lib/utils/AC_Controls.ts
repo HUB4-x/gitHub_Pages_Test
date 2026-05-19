@@ -44,7 +44,8 @@ export type ProtectedAssets = {
     //encrpyted content
 	content: {
         iv: string //base64 iv string for enc-/decryption of the content/ciphertext. DEC(SECRET_AES_CONTENT_KEY, iv, ciphertext) ==> content
-        ciphertext: string //Encrypted content (=ciphertext)
+        ciphertext: string //Encrypted content (=ciphertext),
+		plaintext?: string //The decrypted content ciphertext after its decrypted clientside
     },
 
     wrapped_keys: Wrapped_Key[]; //The list of wrapped keys
@@ -60,19 +61,25 @@ export type Wrapped_Key = {
 
 
 export const list_of_Possible_MimeTypes = [
-	// documents
-	'application/pdf',
 	// text
 	'text/plain','text/markdown','text/html','text/csv','application/json',
 	// images
 	'image/jpeg','image/png',
-	// video
-	'video/mp4','video/webm',
-	// audio
-	'audio/mpeg','audio/wav',
-	// archives
-	'application/zip',
 ]
+// export const list_of_Possible_MimeTypes = [
+// 	// documents
+// 	'application/pdf',
+// 	// text
+// 	'text/plain','text/markdown','text/html','text/csv','application/json',
+// 	// images
+// 	'image/jpeg','image/png',
+// 	// video
+// 	'video/mp4','video/webm',
+// 	// audio
+// 	'audio/mpeg','audio/wav',
+// 	// archives
+// 	'application/zip',
+// ]
 
 export type Possible_MimeTypes = typeof list_of_Possible_MimeTypes[number]
 
@@ -109,6 +116,32 @@ export function bytesToBase64__large_data(bytes: Uint8Array): string {
 
 export function base64ToBytes(base64: string): BufferSource {
 	return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+}
+
+export function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+
+  const chunkSize = 0x8000;
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+export function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64);
+  const buffer = new ArrayBuffer(binary.length);
+  const bytes = new Uint8Array(buffer);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return buffer;
 }
 
 
@@ -168,12 +201,12 @@ export async function encryptAESGCM256(
 export async function decryptAESGCM256(
 	ciphertextBase64: string,
 	key: CryptoKey,
-	ivBase64: BufferSource,
+	iv: BufferSource,
 ): Promise<string> {
 	const decrypted = await crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
-			iv: ivBase64
+			iv: iv
 		},
 		key,
 		base64ToBytes(ciphertextBase64)
@@ -182,6 +215,60 @@ export async function decryptAESGCM256(
 	return new TextDecoder().decode(decrypted);
 }
 
+
+export async function decryptFile(enc_buf: ArrayBuffer, key: CryptoKey, iv: BufferSource, mimeType: string) {
+//   const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv
+    },
+    key,
+    enc_buf
+  );
+
+  return new Blob([decrypted], { type: mimeType });
+}
+
+export async function encryptFile(file: File, key: CryptoKey, ivBase64?: string): Promise<ProtectedAssets> {
+	let iv = base64ToBytes(create_random_iv())
+	if(ivBase64){
+		iv = base64ToBytes(ivBase64)
+	} 
+
+	const plaintext = await file.arrayBuffer();
+
+	const ciphertext = await crypto.subtle.encrypt(
+		{
+		name: "AES-GCM",
+		iv
+		},
+		key,
+		plaintext
+	);
+
+	const res: ProtectedAssets = {
+		content: {
+			ciphertext: arrayBufferToBase64(ciphertext),
+			iv: bufferSourceToString(iv),
+		},
+		mimeType: file.type,
+		asset_name: file.name,
+		allowed_roles: [],
+		wrapped_keys: [], 
+	}
+	return res
+}
+
+function bufferSourceToString(source: BufferSource): string {
+  const bytes =
+    source instanceof ArrayBuffer
+      ? new Uint8Array(source)
+      : new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
+
+  return new TextDecoder("utf-8").decode(bytes);
+}
 
 
 
@@ -243,7 +330,7 @@ export const admin_user: Access_Control_Role_Type = {
 		stored_aes_key: '',
 		salt: 'wBYEnwjR2fhMRTZ9vmk9Kw==',
 }
-export const test_user: Access_Control_Role_Type = {
+export const test_user01: Access_Control_Role_Type = {
 		id: 42,
 		idx: 1,
 		username: 'Test User',
@@ -282,6 +369,14 @@ export const admin_test: Access_Control_Role_Type = {
 	stored_aes_key: '',
 	salt: 'wBYEnwjR2fhMRTZ9vmk9Kw==',
 }
+export const test_user: Access_Control_Role_Type = {
+	id: 100,
+	idx: 999,
+	username: 'T-User',
+	stored_aes_key: '',
+	salt: '67trSgAx8+b3bxxdSNgJ1A==',
+}
+
 export const recruiter_test: Access_Control_Role_Type = {
 	id: 1,
 	idx: 1,
@@ -294,8 +389,8 @@ export const recruiter_test: Access_Control_Role_Type = {
 // ###################################################################
 
 
-export const default_user_list: Access_Control_Role_Type[] = [admin_test, recruiter_test] as const
-// export const default_user_list: Access_Control_Role_Type[] = [admin_user, test_user, test_user02, test_user03, test_user04] as const
+export const default_user_list: Access_Control_Role_Type[] = [admin_test, recruiter_test, test_user] as const
+// export const default_user_list: Access_Control_Role_Type[] = [admin_user, test_user01, test_user02, test_user03, test_user04] as const
 
 export type USER_LIST = typeof default_user_list[number]
 

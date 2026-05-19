@@ -1,7 +1,7 @@
 <script lang="ts">
     /* eslint-disable @typescript-eslint/no-unused-vars */
 	import { available_users, get_only_stored_users, init_userSession, load_storage_userlist_into_memory } from "$lib/stores/user_session";
-    import { base64ToBytes, bytesToBase64__small_data, create_random_iv, createRandomAES256Key, decryptAESGCM256, deriveAESKeyFromPassword, encryptAESGCM256, exportAESKeyToBase64, importAESKeyFromBase64, init_user_storage_with_default_values, list_of_Possible_MimeTypes, remove_user_from_stored_userlist, updateUserById, type Access_Control_Role_Type, type default_user_list, type Possible_MimeTypes, type ProtectedAssets, type Wrapped_Key } from "$lib/utils/AC_Controls";
+    import { base64ToBytes, bytesToBase64__small_data, create_random_iv, createRandomAES256Key, decryptAESGCM256, decryptFile, deriveAESKeyFromPassword, encryptAESGCM256, exportAESKeyToBase64, importAESKeyFromBase64, init_user_storage_with_default_values, list_of_Possible_MimeTypes, remove_user_from_stored_userlist, updateUserById, type Access_Control_Role_Type, type default_user_list, type Possible_MimeTypes, type ProtectedAssets, type Wrapped_Key } from "$lib/utils/AC_Controls";
 	import { onMount } from "svelte";
 
 
@@ -19,6 +19,10 @@
     let selectedUser: Access_Control_Role_Type | null = $state(null)
     let inputString_OBJ: string = $state('')
 
+    let Inputfiles: FileList | null = $state(null)
+    let parsed_asset: ProtectedAssets | null = $state(null)
+    let fileContent_ArrayBuffer: ArrayBuffer | null = $state(null)
+
     
     //https://www.codertools.net/tools/pbkdf2.php?lang=de
     let content_MimeType: Possible_MimeTypes = $state('')
@@ -30,6 +34,7 @@
 
     // output data
     let output: string = $state('Nothing to see here!')
+    let blobURL: string = $state('')
 
 
 
@@ -51,20 +56,42 @@
     }
 
 
+    function handle_click_decrypt(){
+        if(inputString_OBJ){
+            //Decrypt the object given
+            decrypt_content_for_selected_users()
+        } else if(Inputfiles && fileContent_ArrayBuffer) {
+            //Decrpyt the input file
+        }
+    }
+
+
+
 
     async function decrypt_content_for_selected_users(){
-        const parsed_asset: ProtectedAssets = JSON.parse(inputString_OBJ)
-        if(selectedUser && parsed_asset.wrapped_keys.length > 0){
+        parsed_asset = JSON.parse(inputString_OBJ)
+        if(selectedUser && parsed_asset && parsed_asset.wrapped_keys.length > 0){
             const suitable_wkey: Wrapped_Key | undefined = findSuitableWrappedKey(selectedUser, parsed_asset.wrapped_keys) 
             if(suitable_wkey && selectedUser.stored_aes_key){
                 const user_aes_key: CryptoKey = await importAESKeyFromBase64(selectedUser.stored_aes_key)
                 const iv_wkey: BufferSource = base64ToBytes(suitable_wkey.iv)
-                // console.log(suitable_wkey, selectedUser.stored_aes_key)
-
-                
                 let decrpyted_content_key: string = await decryptAESGCM256(suitable_wkey.wKey, user_aes_key, iv_wkey)
-                let plaintext: string = await decryptAESGCM256(parsed_asset.content.ciphertext, await importAESKeyFromBase64(decrpyted_content_key), base64ToBytes(parsed_asset.content.iv))
-                output = plaintext
+                const key = await importAESKeyFromBase64(decrpyted_content_key)
+                const iv = base64ToBytes(parsed_asset.content.iv)
+
+                if(inputString_OBJ && !Inputfiles){
+                    //Decrypt the object given
+                    output = await decryptAESGCM256(parsed_asset.content.ciphertext, key, iv)
+
+                } else if(Inputfiles && fileContent_ArrayBuffer) {
+                    //Decrpyt the input file
+                    console.log(fileContent_ArrayBuffer)
+                    const output_blob = await decryptFile(fileContent_ArrayBuffer, key, iv, content_MimeType)
+                    blobURL = URL.createObjectURL(output_blob)
+                    
+                } else {
+                    // NOT THE TWO CASES
+                }
 
             } else {
                 console.log('ERR:: Either selectedUser has no stored aes key OR there are no suitable wrapped keys found ==> i.e the selectedUser has no access rights to this asset')
@@ -72,7 +99,7 @@
         } else {
             console.log('ERR:: Either no User selected OR there are no wrapped keys in the input object')
         }
-    } 
+    }
 
 
     $effect(()=>{
@@ -84,7 +111,7 @@
 
 
     function check_completeness_of_input(): boolean{
-        if(!inputString_OBJ || !selectedUser || !content_MimeType){
+        if((!inputString_OBJ) || !selectedUser || !content_MimeType){
             return false
         }
         return true
@@ -95,6 +122,23 @@
             content_is_complete = check_completeness_of_input()
         }
     })
+
+
+
+
+	async function read_added_file() {
+        let file = Inputfiles?.[0];
+
+		if (!file) {
+            content_MimeType = ''
+			return;
+		}
+
+        fileContent_ArrayBuffer = await file.arrayBuffer();
+		
+		console.log('Content:', fileContent_ArrayBuffer);
+	}
+
 
 
 </script>
@@ -132,38 +176,17 @@
                     {/each}
                 </select>
 
+                <label for="inputEncFile" class="mt-3 flex flex-col items-center w-full h-full max-h-min gap-x-2 text-nowrap">
+                    <p>(optional) Encrypted File: </p>
+                    <input type="file" name="" id="inputEncFile" class="file-input" bind:files={Inputfiles} onchange={read_added_file}>
+                </label>
 
                 <label for="" class="flex items-center w-full h-full max-h-min gap-x-2 text-nowrap">
-                    <!-- <p>Input</p> -->
-                    <!-- <div class="divider divider-horizontal mx-0"></div> -->
                     <div class="flex flex-col w-full h-full max-h-min">
-                        <!-- <input type="text" class="bg-neutral-content text-neutral input ml-auto w-full h-full" placeholder="Content Ciphertext" bind:value={inputString} disabled={inputString_OBJ.replaceAll(' ', '').length > 0}>
-                        <div class="divider">or</div> -->
                         <textarea class="bg-neutral-content text-neutral input ml-auto w-full min-h-50" placeholder="Protected Asset Object" bind:value={inputString_OBJ}></textarea>
                     </div>
                 </label>
-
-                <!-- <label for="" class="flex items-center w-full gap-x-2 text-nowrap">
-                    <p>AES Key (b64)</p>
-                    <input type="text" class="bg-neutral-content text-neutral input ml-auto w-full" placeholder="AES Content Key" bind:value={content_aes_key}>
-                    <button class="btn btn-secondary w-fit h-full" aria-label="random aes_key" onclick={choose_random_content_aes_key}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                            <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
-                        </svg>
-                    </button>
-                </label>
-
-                <label for="" class="flex items-center w-full gap-x-2 text-nowrap">
-                    <p>IV (b64)</p>
-                    <input type="text" class="bg-neutral-content text-neutral input ml-auto w-full" placeholder="Initiation Vector" bind:value={content_iv}>
-                    <button class="btn btn-secondary w-fit h-full" aria-label="random iv" onclick={choose_random_encryption_iv}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                            <path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03ZM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 0 0 .372-.648V7.93ZM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 0 0 .372.648l8.628 5.033Z" />
-                        </svg>
-                    </button>
-                </label> -->
-
-                <button class="btn btn-success {content_is_complete? '' : 'btn-disabled'}" onclick={decrypt_content_for_selected_users}>Decrypt</button>
+                <button class="btn btn-success {content_is_complete? '' : 'btn-disabled'}" onclick={handle_click_decrypt}>Decrypt</button>
             </div>
         </div>
 
@@ -172,7 +195,11 @@
             <!--  -->
             <textarea name="" id="" class="size-full text-black" bind:value={output} readonly></textarea>
             {:else}
-            <textarea name="" id="" class="size-full text-black" bind:value={output} readonly></textarea>
+            <!-- Here depending on the content_mimetype either <img>, <p>, <pdf>, <html>, <csv>, ... -->
+            <!-- <textarea name="" id="" class="size-full text-black" bind:value={output} readonly></textarea> -->
+             {#if blobURL}
+                <img src="{blobURL}" alt="testing dec img" class="size-full">
+             {/if}
             {/if}
         </div>
     </div>

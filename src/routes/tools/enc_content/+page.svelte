@@ -1,7 +1,7 @@
 <script lang="ts">
     /* eslint-disable @typescript-eslint/no-unused-vars */
 	import { available_users, get_only_stored_users, init_userSession, load_storage_userlist_into_memory } from "$lib/stores/user_session";
-    import { base64ToBytes, bytesToBase64__small_data, create_random_iv, createRandomAES256Key, deriveAESKeyFromPassword, encryptAESGCM256, exportAESKeyToBase64, importAESKeyFromBase64, init_user_storage_with_default_values, list_of_Possible_MimeTypes, remove_user_from_stored_userlist, updateUserById, type Access_Control_Role_Type, type default_user_list, type Possible_MimeTypes, type ProtectedAssets, type Wrapped_Key } from "$lib/utils/AC_Controls";
+    import { base64ToArrayBuffer, base64ToBytes, bytesToBase64__small_data, create_random_iv, createRandomAES256Key, deriveAESKeyFromPassword, encryptAESGCM256, encryptFile, exportAESKeyToBase64, importAESKeyFromBase64, init_user_storage_with_default_values, list_of_Possible_MimeTypes, remove_user_from_stored_userlist, updateUserById, type Access_Control_Role_Type, type default_user_list, type Possible_MimeTypes, type ProtectedAssets, type Wrapped_Key } from "$lib/utils/AC_Controls";
 	import { onMount } from "svelte";
 
 
@@ -15,13 +15,13 @@
     })
 
 
-    //TEST INPUT
+    //INPUT
     let inputString: string = $state('')
     let Inputfiles: FileList | null = $state(null)
     let fileContent: string | ArrayBuffer | null = $state(null)
 
 
-    // input data
+    // selected user data
     let selectedProfilesIdx: number[] = $state([])
     let selectedUsers: Access_Control_Role_Type[] = $state([])
 
@@ -41,6 +41,7 @@
 
     // output data
     let output: string = $state('Nothing to see here!')
+    let resulting_enc_obj: ProtectedAssets | undefined = $state(undefined)
 
 
 
@@ -69,36 +70,29 @@
     }
 
 
-    // async function store_password_for_selected_user(){
-    //     if(password_or_AESKey === 'pass' && tmp_password){
-    //         //Do PBKDF2 and then store
-    //         tmp_user.stored_aes_key = await exportAESKeyToBase64(await deriveAESKeyFromPassword(tmp_password, base64ToBytes(tmp_user.salt)))
-    //         updateUserById(tmp_user.id, tmp_user)
-    //     } else if(password_or_AESKey === 'aes_key' && tmp_user.stored_aes_key){
-    //         //store aes directly
-    //         updateUserById(tmp_user.id, tmp_user)
-    //     } else {
-    //         return
-    //     }
-    //     reset_tmp_user()
-    //     reset_inputs()
-    //     init_userSession()
-    //     update_stored_user_list = true
-    // }
-
-
     async function encrypt_content_for_selected_users(){
-        let res: ProtectedAssets = {} as ProtectedAssets
+        let res: ProtectedAssets = {content: {ciphertext: '', iv: '', plaintext:''}} as ProtectedAssets
+        if(inputString){
+            res.content.ciphertext = await encryptAESGCM256(inputString, await importAESKeyFromBase64(content_aes_key), base64ToBytes(content_iv))
+        } else if (Inputfiles){
+            // ciphertext = await encryptAESGCM256(base64_file_content, await importAESKeyFromBase64(content_aes_key), base64ToBytes(content_iv))
+            res = await encryptFile(Inputfiles[0], await importAESKeyFromBase64(content_aes_key), content_iv)
+            // console.log(res)
 
-        const ciphertext: string = await encryptAESGCM256(inputString, await importAESKeyFromBase64(content_aes_key), base64ToBytes(content_iv))
+        }
+
+        if(!res.content.ciphertext){
+            console.log('ERR.: ABORT ')
+            return
+        }
 
         res.asset_name = content_Asset_name
-        res.mimeType = 'text/plain'
+        res.mimeType = content_MimeType
         res.allowed_roles = []
         res.wrapped_keys = []
-        res.content = {
+        res.content = { 
+            ...res.content,
             iv: content_iv,
-            ciphertext: ciphertext
         }
 
         for(const user of selectedUsers){
@@ -124,9 +118,50 @@
             }
         } 
 
-        output = JSON.stringify(res, null, 2)
+        // output = JSON.stringify(res, null, 2)
+        // const tmpciphertext: string = res.content.ciphertext
+        // res.content.ciphertext = ''
+        if(inputString){
+            output = JSON.stringify(res, null, 2)
+        } else {
+            const output_obj: ProtectedAssets = {...res, content: {ciphertext: '', iv: res.content.iv}}
+            output = JSON.stringify(output_obj, null, 2)
+        }
+        resulting_enc_obj = res
+        // res.content.ciphertext = tmpciphertext
         return res
     } 
+
+
+    function downloadFile(){
+        if(resulting_enc_obj && resulting_enc_obj.asset_name){
+            const buf: ArrayBuffer = base64ToArrayBuffer(resulting_enc_obj.content.ciphertext)
+            downloadArrayBuffer(buf, resulting_enc_obj.asset_name)
+        }
+    }
+
+
+    function toPlainArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
+        const plain = new ArrayBuffer(buffer.byteLength);
+        new Uint8Array(plain).set(new Uint8Array(buffer));
+        return plain;
+    }
+
+    function downloadArrayBuffer(buffer: ArrayBufferLike, filename: string, mime = "application/octet-stream") {
+        const plainBuffer = toPlainArrayBuffer(buffer);
+
+        const blob = new Blob([plainBuffer], { type: mime });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename + '.enc';
+        document.body.appendChild(a);
+        a.click();
+
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
 
 
     async function read_added_file() {
@@ -301,6 +336,7 @@
             <!--  -->
             <textarea name="" id="" class="size-full text-black" bind:value={output} readonly></textarea>
             {:else}
+            <button class="btn btn-info" onclick={downloadFile}>Download Enc File</button>
             <textarea name="" id="" class="size-full text-black" bind:value={output} readonly></textarea>
             {/if}
         </div>

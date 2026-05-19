@@ -58,7 +58,7 @@
 
 <div class="h-full w-full max-w-full min-w-0 overflow-hidden lg:w-[90%] lg:mx-auto flex flex-col">
 	<div class="mockup-code w-full max-w-[calc(100vw-1rem)] min-w-0 h-fit mx-auto select-none overflow-hidden bg-neutral-content text-neutral dark:bg-base-200 dark:text-neutral-content">
-		<div class="grid w-full min-w-0 max-w-full grid-cols-[1.25rem_minmax(0,1fr)] px-4 py-1 text-base sm:text-lg md:text-xl lg:text-2xl">
+		<div class="grid w-full min-w-0 max-w-full grid-cols-[1.25rem_minmax(0,1fr)] px-4 py-1 pb-4 text-base sm:text-lg md:text-xl lg:text-2xl">
 			<span class="text-right select-none">&gt;</span>
 			<!-- <span class="block min-w-0 max-w-full whitespace-normal break-words [overflow-wrap:anywhere] pl-2">
 				{displaytext}
@@ -74,5 +74,6 @@
 		<a href={resolve('/enc_test')}>TEST PAGE</a>
 		<a href={resolve('/tools/enc_content')}>Enc Content</a>
 		<a href={resolve('/tools/dec_content')}>Dec Content</a>
+		<a href={resolve('/t_route')}>Testing Content</a>
 	</div>
 </div>
