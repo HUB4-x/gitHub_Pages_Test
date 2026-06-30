@@ -5,7 +5,6 @@
 import { get_only_stored_users } from "$lib/stores/user_session";
 import { setLocalStorage } from "./localstorage_utils";
 
-export const STORED_CREDENTIALS_LOCALSTORAGE_KEY: string = ''
 
 export const settings = {
     passwordKdf: {
