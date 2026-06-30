@@ -22,6 +22,27 @@
     })
 
 
+    /**
+     * The protected asset for the image in the static dir
+     */
+    // let testimg: ProtectedAssets = $state({
+    //     "content": {
+    //         "ciphertext": "",
+    //         "iv": "O1SKtGgZKa1dKaUfNNWeFw=="
+    //     },
+    //     "mimeType": "image/jpeg",
+    //     "asset_name": "DSCF0678.JPG",
+    //     "allowed_roles": [100],
+    //     "wrapped_keys": [{
+    //         "role_id": 100,
+    //         "iv": "qaX0VueYFlT+IcioHAML4Q==",
+    //         "wKey": "piZOQnvJUahyjb6RGPKoxAMkawk9kprBSvL/I3Nhv8xHD+MqwleyF30sp1iEzk4icAEBThSiDlSpodrv"
+    //     }]
+    // })
+
+
+
+
 
 
 
@@ -108,5 +129,7 @@
     {:else}
     <p>NOT DECRYPTED YET!</p>
     {/if} -->
+
+
 
 </div>
